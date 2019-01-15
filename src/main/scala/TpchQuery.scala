@@ -50,7 +50,7 @@ object TpchQuery  extends Logging{
     // val OUTPUT_DIR: String = "/tpch"
     // val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/output"
 
-    val OUTPUT_DIR = "/tpch_out"
+    val OUTPUT_DIR = "alluxio://localhost:19998/tpch_out"
 
     val results = new ListBuffer[(String, Float)]
 
@@ -95,7 +95,7 @@ object TpchQuery  extends Logging{
     // val INPUT_DIR: String = "/dbgen"
 
     // read from alluxio
-    val INPUT_DIR = "/tpch"
+    val INPUT_DIR = "alluxio://localhost:19998/tpch"
 
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 

@@ -18,7 +18,7 @@ import scala.collection.mutable.ListBuffer
  * Savvas Savvides <savvas@purdue.edu>
  *
  */
-abstract class TpchQuery {
+abstract class TpchQuery{
 
   // get the name of the class excluding dollar signs and package
   private def escapeClassName(className: String): String = {
@@ -33,7 +33,7 @@ abstract class TpchQuery {
   def execute(sc: SparkContext, tpchSchemaProvider: TpchSchemaProvider): DataFrame
 }
 
-object TpchQuery extends Logging {
+object TpchQuery  extends Logging{
 
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 
@@ -48,7 +48,8 @@ object TpchQuery extends Logging {
 
     // if set write results to hdfs, if null write to stdout
     // val OUTPUT_DIR: String = "/tpch"
-    // val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/dbgen/output"
+    // val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/output"
+
     val OUTPUT_DIR = "/tpch_out"
 
     val results = new ListBuffer[(String, Float)]
@@ -64,7 +65,7 @@ object TpchQuery extends Logging {
       val t0 = System.nanoTime()
 
       val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
-
+   
       logInfo(s"Query ${queryNo} begin")
       outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
       logInfo(s"Query ${queryNo} end")
@@ -75,7 +76,6 @@ object TpchQuery extends Logging {
       results += new Tuple2(query.getName(), elapsed)
 
     }
-
     return results
   }
 

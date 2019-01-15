@@ -1,5 +1,7 @@
 package main.scala
 
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.internal.Logging
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import java.io.BufferedWriter
@@ -46,7 +48,8 @@ object TpchQuery {
 
     // if set write results to hdfs, if null write to stdout
     // val OUTPUT_DIR: String = "/tpch"
-    val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/dbgen/output"
+    // val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/dbgen/output"
+    val OUTPUT_DIR = "/tpch_out"
 
     val results = new ListBuffer[(String, Float)]
 
@@ -62,7 +65,9 @@ object TpchQuery {
 
       val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
 
+      logInfo(s"Query ${queryNo} begin")
       outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+      logInfo(s"Query ${queryNo} end")
 
       val t1 = System.nanoTime()
 
@@ -84,10 +89,13 @@ object TpchQuery {
     val sc = new SparkContext(conf)
 
     // read files from local FS
-    val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
+    // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
 
     // read from hdfs
     // val INPUT_DIR: String = "/dbgen"
+
+    // read from alluxio
+    val INPUT_DIR = "/tpch"
 
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 

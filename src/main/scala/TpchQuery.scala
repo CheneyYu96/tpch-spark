@@ -33,7 +33,7 @@ abstract class TpchQuery {
   def execute(sc: SparkContext, tpchSchemaProvider: TpchSchemaProvider): DataFrame
 }
 
-object TpchQuery {
+object TpchQuery extends Logging {
 
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 

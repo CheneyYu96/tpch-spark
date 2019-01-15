@@ -54,7 +54,7 @@ object TpchQuery  extends Logging{
     // val OUTPUT_DIR: String = "/tpch"
     // val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/output"
 
-    val OUTPUT_DIR = s"alluxio://${IP}/tpch_out"
+    val OUTPUT_DIR = s"alluxio://${IP}:19998/tpch_out"
 
     val results = new ListBuffer[(String, Float)]
 

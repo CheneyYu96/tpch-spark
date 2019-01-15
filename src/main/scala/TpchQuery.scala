@@ -18,6 +18,8 @@ import scala.collection.mutable.ListBuffer
  * Savvas Savvides <savvas@purdue.edu>
  *
  */
+
+
 abstract class TpchQuery{
 
   // get the name of the class excluding dollar signs and package
@@ -35,6 +37,8 @@ abstract class TpchQuery{
 
 object TpchQuery  extends Logging{
 
+  var IP = "18.212.245.163"
+
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 
     if (outputDir == null || outputDir == "")
@@ -50,7 +54,7 @@ object TpchQuery  extends Logging{
     // val OUTPUT_DIR: String = "/tpch"
     // val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/output"
 
-    val OUTPUT_DIR = "alluxio://localhost:19998/tpch_out"
+    val OUTPUT_DIR = s"alluxio://${IP}/tpch_out"
 
     val results = new ListBuffer[(String, Float)]
 
@@ -95,7 +99,7 @@ object TpchQuery  extends Logging{
     // val INPUT_DIR: String = "/dbgen"
 
     // read from alluxio
-    val INPUT_DIR = "alluxio://localhost:19998/tpch"
+    val INPUT_DIR = s"alluxio://${IP}:19998/tpch"
 
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 

@@ -92,7 +92,7 @@ object TpchQuery  extends Logging{
     if (args.length > 0)
       queryNum = args(0).toInt
 
-    val conf = new SparkConf().setAppName("TPCH Query")
+    val conf = new SparkConf().setAppName("TPCH Query in 2 workers")
     val sc = new SparkContext(conf)
 
     // read files from local FS

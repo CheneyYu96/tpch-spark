@@ -38,7 +38,8 @@ abstract class TpchQuery{
 
 object TpchQuery  extends Logging{
 
-  var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
+  var IP : String = "34.205.246.130"
+//  var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
 
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 

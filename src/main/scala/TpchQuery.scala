@@ -38,8 +38,7 @@ abstract class TpchQuery{
 
 object TpchQuery  extends Logging{
 
-  var IP : String = "34.205.246.130"
-//  var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
+  var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
 
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 
@@ -57,7 +56,7 @@ object TpchQuery  extends Logging{
     // val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/output"
 
     val OUTPUT_DIR = s"alluxio://${IP}:19998/tpch_out"
-    logInfo(s"Output dir : ${OUTPUT_DIR}")
+//    logInfo(s"Output dir : ${OUTPUT_DIR}")
 
 
     val results = new ListBuffer[(String, Float)]
@@ -104,7 +103,7 @@ object TpchQuery  extends Logging{
 
     // read from alluxio
     val INPUT_DIR = s"alluxio://${IP}:19998/tpch"
-    logInfo(s"Input dir : ${INPUT_DIR}")
+//    logInfo(s"Input dir : ${INPUT_DIR}")
 
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 

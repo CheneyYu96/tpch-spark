@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileWriter
 import org.apache.spark.sql._
 import scala.collection.mutable.ListBuffer
+import scala.io.Source
 
 /**
  * Parent class for TPC-H queries.
@@ -37,7 +38,7 @@ abstract class TpchQuery{
 
 object TpchQuery  extends Logging{
 
-  var IP = "18.212.245.163"
+  var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
 
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 
@@ -89,7 +90,7 @@ object TpchQuery  extends Logging{
     if (args.length > 0)
       queryNum = args(0).toInt
 
-    val conf = new SparkConf().setAppName("Simple Application")
+    val conf = new SparkConf().setAppName("TPCH Query")
     val sc = new SparkContext(conf)
 
     // read files from local FS

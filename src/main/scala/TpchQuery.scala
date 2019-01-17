@@ -81,7 +81,8 @@ object TpchQuery  extends Logging{
 
       for (t <- 1 to totalTime) {
         logInfo(s"Run the ${t}th time")
-        query.execute(sc, schemaProvider)
+        outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+//        query.execute(sc, schemaProvider)
       }
       val t3 = System.nanoTime()
       val timeElapsed = (t3 - t2) / 1000000.0f // milisecond

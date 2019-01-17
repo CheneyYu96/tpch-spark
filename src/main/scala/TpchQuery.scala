@@ -68,7 +68,7 @@ object TpchQuery  extends Logging{
       toNum = queryNum;
     }
 
-    val totalTime = 5
+    val totalTime = 10
     for (queryNo <- fromNum to toNum) {
       val t0 = System.nanoTime()
 

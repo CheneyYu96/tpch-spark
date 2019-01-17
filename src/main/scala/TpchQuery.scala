@@ -68,14 +68,25 @@ object TpchQuery  extends Logging{
       toNum = queryNum;
     }
 
+    val totalTime = 5
     for (queryNo <- fromNum to toNum) {
       val t0 = System.nanoTime()
 
       val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
    
-      logInfo(s"Query ${queryNo} begin")
-      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
-      logInfo(s"Query ${queryNo} end")
+      logInfo(s"Run query ${queryNo} ${totalTime} times")
+
+//      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+      val t2 = System.nanoTime()
+
+      val times = 1 to totalTime
+      for (t <- times) {
+        query.execute(sc, schemaProvider)
+      }
+      val t3 = System.nanoTime()
+      val timeElapsed = (t3 - t2) / 1000000.0f // milisecond
+
+      logInfo(s"Finish running query ${queryNo}. Time : ${timeElapsed}")
 
       val t1 = System.nanoTime()
 

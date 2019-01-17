@@ -79,7 +79,7 @@ object TpchQuery  extends Logging{
 //      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
       val t2 = System.nanoTime()
 
-      val times = 1 to totalTime
+      val times = 1 to totalTime toList
       for (t <- times) {
         query.execute(sc, schemaProvider)
       }

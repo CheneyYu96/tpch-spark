@@ -68,7 +68,7 @@ object TpchQuery  extends Logging{
       toNum = queryNum;
     }
 
-    val totalTime = 50
+    val totalTime = Source.fromFile("/home/ec2-user/tpch-spark/times").getLines.toList.head.toInt
     for (queryNo <- fromNum to toNum) {
       val t0 = System.nanoTime()
 
@@ -80,9 +80,11 @@ object TpchQuery  extends Logging{
       val t2 = System.nanoTime()
 
       for (t <- 1 to totalTime) {
-        logInfo(s"Run the ${t}th time")
+        val t4 = System.nanoTime()
+
         outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
-//        query.execute(sc, schemaProvider)
+        val timeSingleElapsed = (System.nanoTime() - t4)/1000000.0f // milisecond
+        logInfo(s"Time elapsed at ${t}th round: ${timeSingleElapsed}")
       }
       val t3 = System.nanoTime()
       val timeElapsed = (t3 - t2) / 1000000.0f // milisecond

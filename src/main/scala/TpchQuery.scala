@@ -87,6 +87,7 @@ object TpchQuery  extends Logging{
 
         sqlContext.clearCache()
         val t4 = System.nanoTime()
+        logInfo(s"Begin ${t} round")
 
         val schemaProvider = new TpchSchemaProvider(sc, inputDir)
 

@@ -83,7 +83,6 @@ object TpchQuery  extends Logging{
 
       for (t <- 1 to totalTime) {
         sqlContext.clearCache()
-
         val t4 = System.nanoTime()
 
         outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())

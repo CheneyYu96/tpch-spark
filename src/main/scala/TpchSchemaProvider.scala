@@ -124,4 +124,7 @@ class TpchSchemaProvider(sc: SparkContext, inputDir: String) {
   dfMap.foreach {
     case (key, value) => value.createOrReplaceTempView(key)
   }
+
+  sqlContext.clearCache()
+
 }

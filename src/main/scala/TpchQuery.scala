@@ -85,6 +85,7 @@ object TpchQuery  extends Logging{
 //        sqlContext.clearCache()
         for ((k,v) <- sc.getPersistentRDDs) {
           v.unpersist()
+          logInfo(s"Unpersist RDD: key: ${k}")
         }
 
         val t4 = System.nanoTime()

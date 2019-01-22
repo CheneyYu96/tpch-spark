@@ -16,7 +16,6 @@ class Q30 extends TpchQuery {
 
     // this is used to implicitly convert an RDD to a DataFrame.
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    sqlContext.clearCache()
 
     import sqlContext.implicits._
     import schemaProvider._

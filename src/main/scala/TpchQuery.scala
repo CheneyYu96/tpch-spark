@@ -40,6 +40,7 @@ object TpchQuery  extends Logging{
 
   var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
 
+
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 
     if (outputDir == null || outputDir == "")
@@ -58,6 +59,7 @@ object TpchQuery  extends Logging{
     val OUTPUT_DIR = s"alluxio://${IP}:19998/tpch_out"
 //    logInfo(s"Output dir : ${OUTPUT_DIR}")
 
+    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
     val results = new ListBuffer[(String, Float)]
 
@@ -80,6 +82,8 @@ object TpchQuery  extends Logging{
       val t2 = System.nanoTime()
 
       for (t <- 1 to totalTime) {
+        sqlContext.clearCache()
+
         val t4 = System.nanoTime()
 
         outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())

@@ -50,7 +50,7 @@ object TpchQuery  extends Logging{
       df.write.mode("overwrite").format("com.databricks.spark.csv").option("header", "true").save(outputDir + "/" + className)
   }
 
-  def executeQueries(conf: SparkConf, schemaProvider: TpchSchemaProvider, queryNum: Int): ListBuffer[(String, Float)] = {
+  def executeQueries(conf: SparkConf, inputDir: String, queryNum: Int): ListBuffer[(String, Float)] = {
 
     // if set write results to hdfs, if null write to stdout
     // val OUTPUT_DIR: String = "/tpch"
@@ -85,8 +85,9 @@ object TpchQuery  extends Logging{
       for (t <- 1 to totalTime) {
 //        sqlContext.clearCache()
         val sc = new SparkContext(conf)
-
         val t4 = System.nanoTime()
+
+        val schemaProvider = new TpchSchemaProvider(sc, inputDir)
 
         outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
         val timeSingleElapsed = (System.nanoTime() - t4)/1000000.0f // milisecond
@@ -127,10 +128,8 @@ object TpchQuery  extends Logging{
     val INPUT_DIR = s"alluxio://${IP}:19998/tpch"
 //    logInfo(s"Input dir : ${INPUT_DIR}")
 
-    val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
-
     val output = new ListBuffer[(String, Float)]
-    output ++= executeQueries(conf, schemaProvider, queryNum)
+    output ++= executeQueries(conf, INPUT_DIR, queryNum)
 
     val outFile = new File("TIMES.txt")
     val bw = new BufferedWriter(new FileWriter(outFile, true))

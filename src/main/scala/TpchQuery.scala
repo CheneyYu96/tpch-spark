@@ -82,7 +82,11 @@ object TpchQuery  extends Logging{
       val t2 = System.nanoTime()
 
       for (t <- 1 to totalTime) {
-        sqlContext.clearCache()
+//        sqlContext.clearCache()
+        for ((k,v) <- sc.getPersistentRDDs) {
+          v.unpersist()
+        }
+
         val t4 = System.nanoTime()
 
         outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())

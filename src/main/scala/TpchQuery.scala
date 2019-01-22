@@ -72,13 +72,13 @@ object TpchQuery  extends Logging{
 
     val totalTime = Source.fromFile("/home/ec2-user/tpch-spark/times").getLines.toList.head.toInt
     for (queryNo <- fromNum to toNum) {
+      val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
+      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+
       val t0 = System.nanoTime()
 
-      val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
-   
       logInfo(s"Run query ${queryNo} ${totalTime} times")
 
-//      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
       val t2 = System.nanoTime()
 
       for (t <- 1 to totalTime) {
@@ -91,7 +91,7 @@ object TpchQuery  extends Logging{
 
         outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
         val timeSingleElapsed = (System.nanoTime() - t4)/1000000.0f // milisecond
-        logInfo(s"Time elapsed at ${t}th round: ${timeSingleElapsed}")
+        logInfo(s"Time elapsed at ${t} round: ${timeSingleElapsed}")
       }
       val t3 = System.nanoTime()
       val timeElapsed = (t3 - t2) / 1000000.0f // milisecond

@@ -87,9 +87,10 @@ object TpchQuery  extends Logging{
 
         sqlContext.clearCache()
         val t4 = System.nanoTime()
-        logInfo(s"Begin ${t} round")
+        logInfo(s"Begin at ${t} round")
 
         val schemaProvider = new TpchSchemaProvider(sc, inputDir)
+        logInfo(s"Generate schema at ${t} round")
 
         outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
         val timeSingleElapsed = (System.nanoTime() - t4)/1000000.0f // milisecond

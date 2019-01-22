@@ -73,7 +73,7 @@ object TpchQuery  extends Logging{
     val totalTime = Source.fromFile("/home/ec2-user/tpch-spark/times").getLines.toList.head.toInt
     for (queryNo <- fromNum to toNum) {
       val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
-      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+//      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
 
       val t0 = System.nanoTime()
 
@@ -82,11 +82,7 @@ object TpchQuery  extends Logging{
       val t2 = System.nanoTime()
 
       for (t <- 1 to totalTime) {
-//        sqlContext.clearCache()
-        for ((k,v) <- sc.getPersistentRDDs) {
-          v.unpersist()
-          logInfo(s"Unpersist RDD: key: ${k}")
-        }
+        sqlContext.clearCache()
 
         val t4 = System.nanoTime()
 

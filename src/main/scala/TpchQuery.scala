@@ -59,9 +59,6 @@ object TpchQuery  extends Logging{
     val OUTPUT_DIR = s"alluxio://${IP}:19998/tpch_out"
 //    logInfo(s"Output dir : ${OUTPUT_DIR}")
 
-//    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-
-
     val results = new ListBuffer[(String, Float)]
 
     var fromNum = 1;
@@ -70,6 +67,9 @@ object TpchQuery  extends Logging{
       fromNum = queryNum;
       toNum = queryNum;
     }
+
+    val sc = new SparkContext(conf)
+    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
     val totalTime = Source.fromFile("/home/ec2-user/tpch-spark/times").getLines.toList.head.toInt
     for (queryNo <- fromNum to toNum) {
@@ -83,8 +83,7 @@ object TpchQuery  extends Logging{
       val t2 = System.nanoTime()
 
       for (t <- 1 to totalTime) {
-//        sqlContext.clearCache()
-        val sc = new SparkContext(conf)
+        sqlContext.clearCache()
         val t4 = System.nanoTime()
 
         val schemaProvider = new TpchSchemaProvider(sc, inputDir)
@@ -93,7 +92,6 @@ object TpchQuery  extends Logging{
         val timeSingleElapsed = (System.nanoTime() - t4)/1000000.0f // milisecond
         logInfo(s"Time elapsed at ${t} round: ${timeSingleElapsed}")
 
-        sc.stop()
       }
       val t3 = System.nanoTime()
       val timeElapsed = (t3 - t2) / 1000000.0f // milisecond

@@ -42,7 +42,7 @@ object TpchQuery  extends Logging{
 
 
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
-    df.collect().foreach(println)
+//    df.collect().foreach(println)
 
 //    if (outputDir == null || outputDir == "")
 //      df.collect().foreach(println)

@@ -19,7 +19,7 @@ class Q31 extends TpchQuery {
     import sqlContext.implicits._
     import schemaProvider._
 
-    lineitem.crossJoin(order)
+    lineitem.join(order)
 
   }
 }

@@ -44,11 +44,11 @@ object TpchQuery  extends Logging{
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
 //    df.collect().foreach(println)
 
-//    if (outputDir == null || outputDir == "")
-//      df.collect().foreach(println)
-//    else
-//      //df.write.mode("overwrite").json(outputDir + "/" + className + ".out") // json to avoid alias
-//      df.write.mode("overwrite").format("com.databricks.spark.csv").option("header", "true").save(outputDir + "/" + className)
+    if (outputDir == null || outputDir == "")
+      df.collect().foreach(println)
+    else
+      //df.write.mode("overwrite").json(outputDir + "/" + className + ".out") // json to avoid alias
+      df.write.mode("overwrite").format("com.databricks.spark.csv").option("header", "true").save(outputDir + "/" + className)
   }
 
   def executeQueries(conf: SparkConf, inputDir: String, queryNum: Int): ListBuffer[(String, Float)] = {

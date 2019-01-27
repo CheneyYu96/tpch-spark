@@ -120,6 +120,7 @@ object TpchQuery  extends Logging{
       queryNum = args(0).toInt
 
     val conf = new SparkConf().setAppName("TPCH Query in 2 workers")
+    conf.set("spark.sql.crossJoin.enabled", "true")
 //    val sc = new SparkContext(conf)
 
     // read files from local FS

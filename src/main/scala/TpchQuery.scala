@@ -121,7 +121,7 @@ object TpchQuery  extends Logging{
 
     val conf = new SparkConf().setAppName("TPCH Query in 2 workers")
 //    conf.set("spark.sql.crossJoin.enabled", "true")
-    conf.set("spark.driver.maxResultSize", "4G")
+    conf.set("spark.driver.maxResultSize", "10G")
 //    val sc = new SparkContext(conf)
 
     // read files from local FS

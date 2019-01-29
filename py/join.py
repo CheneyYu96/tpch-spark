@@ -28,7 +28,7 @@ def join_two_tables():
 
 def get_master():
 	with open('/home/ec2-user/hadoop/conf/masters', 'r') as f:
-		return f.readline()
+		return f.readline().rstrip()
 
 
 splitter = lambda l: l.split('|')

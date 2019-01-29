@@ -14,9 +14,10 @@ def join_two_tables():
 	sc = spark.sparkContext
 
 	log4jLogger = sc._jvm.org.apache.log4j
-	logger = log4jLogger.LogManager.getLogger(__name__)
+	logger = log4jLogger.LogManager.getLogger('Join')
 
 	# read data
+	logger.info('Begin reading data')
 	input_dir = 'alluxio://{}:19998/tpch'.format(get_master())
 
 	order_df = spark.createDataFrame(convert_orders(sc.textFile('{}/orders.tbl'.format(input_dir))))
@@ -35,8 +36,9 @@ def join_two_tables():
 		'''
 		)
 
-	logger.info('To execute join query')
+	logger.info('Begin executing query')
 	result_df.show()
+	logger.info('End executing query')
 
 def get_master():
 	with open('/home/ec2-user/hadoop/conf/masters', 'r') as f:

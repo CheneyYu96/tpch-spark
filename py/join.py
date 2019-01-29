@@ -5,7 +5,7 @@ from pyspark.sql import Row
 
 def join_two_tables():
 	spark = SparkSession.builder.appName("Join two tables").getOrCreate()
-	sc = SparkContext(conf = conf)
+	sc = spark.SparkContext
 
 	# read data
 	input_dir = 'alluxio://{}:19998/tpch'.format(get_master())

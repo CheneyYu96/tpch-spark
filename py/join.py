@@ -3,15 +3,18 @@ from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
 
-import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s %(message)s'
-)
+# import logging
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format='%(asctime)s %(levelname)s %(message)s'
+# )
 
 def join_two_tables():
 	spark = SparkSession.builder.appName("Join two tables").getOrCreate()
 	sc = spark.sparkContext
+
+	log4jLogger = sc._jvm.org.apache.log4j
+	logger = log4jLogger.LogManager.getLogger(__name__)
 
 	# read data
 	input_dir = 'alluxio://{}:19998/tpch'.format(get_master())
@@ -19,7 +22,7 @@ def join_two_tables():
 	order_df = spark.createDataFrame(convert_orders(sc.textFile('{}/orders.tbl'.format(input_dir))))
 	item_df = spark.createDataFrame(convert_lineitem(sc.textFile('{}/lineitem.tbl'.format(input_dir))))
 
-	logging.info('Finish reading data')
+	logger.info('Finish reading data')
 
 	# create views
 	order_df.createOrReplaceTempView('orders')
@@ -32,7 +35,7 @@ def join_two_tables():
 		'''
 		)
 
-	logging.info('To execute join query')
+	logger.info('To execute join query')
 	result_df.show()
 
 def get_master():

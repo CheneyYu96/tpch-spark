@@ -3,6 +3,12 @@ from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
 
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s'
+)
+
 def join_two_tables():
 	spark = SparkSession.builder.appName("Join two tables").getOrCreate()
 	sc = spark.sparkContext
@@ -12,6 +18,8 @@ def join_two_tables():
 
 	order_df = spark.createDataFrame(convert_orders(sc.textFile('{}/orders.tbl'.format(input_dir))))
 	item_df = spark.createDataFrame(convert_lineitem(sc.textFile('{}/lineitem.tbl'.format(input_dir))))
+
+	logging.info('Finish reading data')
 
 	# create views
 	order_df.createOrReplaceTempView('orders')
@@ -24,7 +32,8 @@ def join_two_tables():
 		'''
 		)
 
-	result_df.rdd
+	logging.info('To execute join query')
+	result_df.show()
 
 def get_master():
 	with open('/home/ec2-user/hadoop/conf/masters', 'r') as f:

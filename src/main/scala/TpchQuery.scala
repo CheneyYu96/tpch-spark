@@ -42,13 +42,13 @@ object TpchQuery  extends Logging{
 
 
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
-//    df.collect().foreach(println)
+    df.collect().foreach(println)
 
-    if (outputDir == null || outputDir == "")
-      df.collect().foreach(println)
-    else
-      //df.write.mode("overwrite").json(outputDir + "/" + className + ".out") // json to avoid alias
-      df.write.mode("overwrite").format("com.databricks.spark.csv").option("header", "true").save(outputDir + "/" + className)
+//    if (outputDir == null || outputDir == "")
+//      df.collect().foreach(println)
+//    else
+//      //df.write.mode("overwrite").json(outputDir + "/" + className + ".out") // json to avoid alias
+//      df.write.mode("overwrite").format("com.databricks.spark.csv").option("header", "true").save(outputDir + "/" + className)
   }
 
   def executeQueries(conf: SparkConf, inputDir: String, queryNum: Int): ListBuffer[(String, Float)] = {
@@ -63,54 +63,65 @@ object TpchQuery  extends Logging{
 
     val results = new ListBuffer[(String, Float)]
 
-    var fromNum = 1;
-    var toNum = 22;
-    if (queryNum != 0) {
-      fromNum = queryNum;
-      toNum = queryNum;
-    }
-
     val sc = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
-    val totalTime = Source.fromFile("/home/ec2-user/tpch-spark/times").getLines.toList.head.toInt
-    for (queryNo <- fromNum to toNum) {
-      val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
-//      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+    var queryNo = queryNum + 30
+    val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
 
-      val t0 = System.nanoTime()
+    val schemaProvider = new TpchSchemaProvider(sc, inputDir)
 
-      logInfo(s"Run query ${queryNo} ${totalTime} times")
+    val beginTime = System.nanoTime()
+    outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
 
-      val t2 = System.nanoTime()
+    val timeSingleElapsed = (System.nanoTime() - beginTime)/1000000.0f // milisecond
+    logInfo(s"End executing query. Time: ${timeSingleElapsed}")
 
-      for (t <- 1 to totalTime) {
-//        val sc = SparkContext.getOrCreate(conf)
+    results += new Tuple2(query.getName(), timeSingleElapsed)
 
-        sqlContext.clearCache()
-        val t4 = System.nanoTime()
-        logInfo(s"Begin at ${t} round")
-
-        val schemaProvider = new TpchSchemaProvider(sc, inputDir)
-        logInfo(s"Generate schema at ${t} round")
-
-        outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
-        val timeSingleElapsed = (System.nanoTime() - t4)/1000000.0f // milisecond
-        logInfo(s"Time elapsed at ${t} round: ${timeSingleElapsed}")
-
-//        sc.stop()
-      }
-      val t3 = System.nanoTime()
-      val timeElapsed = (t3 - t2) / 1000000.0f // milisecond
-
-      logInfo(s"Finish running query ${queryNo}. Time : ${timeElapsed}")
-
-      val t1 = System.nanoTime()
-
-      val elapsed = (t1 - t0) / 1000000000.0f // second
-      results += new Tuple2(query.getName(), elapsed)
-
-    }
+//    var fromNum = 1
+//    var toNum = 22
+//    if (queryNum != 0) {
+//      fromNum = queryNum
+//      toNum = queryNum
+//    }
+//
+//    val totalTime = Source.fromFile("/home/ec2-user/tpch-spark/times").getLines.toList.head.toInt
+//    for (queryNo <- fromNum to toNum) {
+//      val query = Class.forName(f"main.scala.Q${queryNo}%02d").newInstance.asInstanceOf[TpchQuery]
+////      outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+//
+//      val t0 = System.nanoTime()
+//
+//      logInfo(s"Run query ${queryNo} ${totalTime} times")
+//
+//      val t2 = System.nanoTime()
+//
+//      for (t <- 1 to totalTime) {
+//
+//        sqlContext.clearCache()
+//        val t4 = System.nanoTime()
+//        logInfo(s"Begin at ${t} round")
+//
+//        val schemaProvider = new TpchSchemaProvider(sc, inputDir)
+//        logInfo(s"Generate schema at ${t} round")
+//
+//        outputDF(query.execute(sc, schemaProvider), OUTPUT_DIR, query.getName())
+//        val timeSingleElapsed = (System.nanoTime() - t4)/1000000.0f // milisecond
+//        logInfo(s"Time elapsed at ${t} round: ${timeSingleElapsed}")
+//
+//      }
+//      val t3 = System.nanoTime()
+//      val timeElapsed = (t3 - t2) / 1000000.0f // milisecond
+//
+//      logInfo(s"Finish running query ${queryNo}. Time : ${timeElapsed}")
+//
+//      val t1 = System.nanoTime()
+//
+//      val elapsed = (t1 - t0) / 1000000000.0f // second
+//      results += new Tuple2(query.getName(), elapsed)
+//
+//    }
     return results
   }
 
@@ -122,7 +133,7 @@ object TpchQuery  extends Logging{
 
     val conf = new SparkConf().setAppName("TPCH Query in 2 workers")
 //    conf.set("spark.sql.crossJoin.enabled", "true")
-    conf.set("spark.driver.maxResultSize", "10G")
+//    conf.set("spark.driver.maxResultSize", "10G")
 //    val sc = new SparkContext(conf)
 
     // read files from local FS
@@ -132,7 +143,7 @@ object TpchQuery  extends Logging{
     // val INPUT_DIR: String = "/dbgen"
 
     // read from alluxio
-    val INPUT_DIR = s"alluxio://${IP}:19998/tpch"
+    val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
 //    logInfo(s"Input dir : ${INPUT_DIR}")
 
     val output = new ListBuffer[(String, Float)]

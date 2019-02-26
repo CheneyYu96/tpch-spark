@@ -19,7 +19,9 @@ class Q31 extends TpchQuery {
     import sqlContext.implicits._
     import schemaProvider._
 
-    lineitem.join(order)
+    lineitem
+      .groupBy($"l_shipmode")
+      .agg(count($"l_shipmode"))
 
   }
 }

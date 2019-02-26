@@ -20,7 +20,7 @@ class Q30 extends TpchQuery {
     import sqlContext.implicits._
     import schemaProvider._
 
-    lineitem.join(order, $"l_orderkey" === order("o_orderkey"))
+    lineitem.join(order, $"l_orderkey" === order("o_orderkey")).limit(10)
 
   }
 }

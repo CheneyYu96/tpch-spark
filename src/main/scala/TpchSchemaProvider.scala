@@ -125,6 +125,5 @@ class TpchSchemaProvider(sc: SparkContext, inputDir: String) {
     case (key, value) => value.createOrReplaceTempView(key)
   }
 
-  sqlContext.clearCache()
 
 }

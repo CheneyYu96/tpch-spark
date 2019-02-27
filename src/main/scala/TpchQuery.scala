@@ -70,6 +70,7 @@ object TpchQuery  extends Logging{
 
     val timeSingleElapsed = (System.nanoTime() - beginTime)/1000000.0f // milisecond
     logInfo(s"End executing query. Time: ${timeSingleElapsed}")
+    sqlContext.clearCache()
 
     results += new Tuple2(query.getName(), timeSingleElapsed)
 

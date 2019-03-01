@@ -12,6 +12,7 @@ import org.apache.spark.sql.SparkSession
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
+import scopt.OptionParser
 /**
  * Parent class for TPC-H queries.
  *
@@ -107,49 +108,129 @@ object TpchQuery  extends Logging{
 
   }
 
+  case class CommandLineArgs(
+    queryNum: Int = 1,
+    exeQuery: Boolean = false,
+    convertTable: Boolean = false,
+    appName: String = "TPCH Query in 2 workers",
+    runParquet: Boolean = false
+  )
+
   def main(args: Array[String]): Unit = {
+    
+    val parser = new scopt.OptionParser[CommandLineArgs]("Column-Cache Experiment") {
+      head("scopt", "3.7.1")
+      
+      opt[Int]('q', "query") action { (x, c) =>
+        {
+          c.copy(queryNum = x)
+          c.copy(exeQuery = true)
+        }
+      } text ("query is num of the query to be excecuted")
 
-    var queryNum = 0
-    var appName = "TPCH Query in 2 workers"
+      opt[Unit]('c', "convert-table") action { (_, c) =>
+        c.copy(convertTable = true)
+      } text ("with this a task to convert tbl to parquet would be excecuted")
 
-    /*
-    * whether to use parquet file directly
-    * 0: use plain text to run queries
-    * 1: use parquet file to run queries
-    * 2: generate parquet files
-    */
-    var applyParquet = 0
+      opt[Unit]('p', "run-parquet") action { (_, c) =>
+        c.copy(runParquet = true)
+      } text ("with this queries would be excecuted on parquet files")
 
-    if (args.length > 0)
-      queryNum = args(0).toInt
-    if (args.length > 1)
-      appName = args(1)
-    if (args.length > 2)
-      applyParquet = args(2).toInt
+      help("help") text("print this usage text.")
 
-    if (applyParquet == 0){
-      val conf = new SparkConf().setAppName(appName)
-      // read files from local FS
-      // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
-
-      // read from alluxio
-      val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
-
-      val output = new ListBuffer[(String, Float)]
-      output ++= executeQueries(conf, INPUT_DIR, queryNum)
+      opt[String]('n', "app-name") action { (x, c) =>
+          c.copy(appName = x)
+      } text ("spark application name")
     }
-    else if (applyParquet == 1){
-      val sparksession = SparkSession
+
+    parser.parse(args, CommandLineArgs()) match {
+      case Some(config) =>
+      // do stuff
+      {
+        run(config)
+      }
+      case None =>
+      // arguments are bad, error message will have been displayed
+    }
+
+    def run(params: CommandLineArgs): Unit = {
+      if(params.convertTable){
+        val ct = new ConvertTable()
+        ct.parseTable()
+      }
+      if(params.exeQuery && !params.runParquet){
+        // val conf = new SparkConf().setAppName(params.appName)
+        // // read files from local FS
+        // // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
+
+        // // read from hdfs
+        // // val INPUT_DIR: String = "/dbgen"
+
+        // // read from alluxio
+        // val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+
+        // val output = new ListBuffer[(String, Float)]
+        // output ++= executeQueries(conf, INPUT_DIR, params.queryNum)
+        val conf = new SparkConf().setAppName(params.appName)
+      
+        val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+
+        val output = new ListBuffer[(String, Float)]
+        output ++= executeQueries(conf, INPUT_DIR, params.queryNum)
+        
+      }
+      else if(params.exeQuery && params.runParquet){
+        val sparksession = SparkSession
         .builder()
-        .appName(appName)
+        .appName(params.appName)
         .getOrCreate()
 
-      val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
-      runParquetQueries(sparksession, INPUT_DIR, queryNum)
+        val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+        runParquetQueries(sparksession, INPUT_DIR, params.queryNum)
+      }
 
     }
-    else if(applyParquet == 2){
-      // TODO convert tbl to parquet
-    }
+    // var queryNum = 0
+    // var appName = "TPCH Query in 2 workers"
+
+    // /*
+    // * whether to use parquet file directly
+    // * 0: use plain text to run queries
+    // * 1: use parquet file to run queries
+    // * 2: generate parquet files
+    // */
+    // var applyParquet = 0
+
+    // if (args.length > 0)
+    //   queryNum = args(0).toInt
+    // if (args.length > 1)
+    //   appName = args(1)
+    // if (args.length > 2)
+    //   applyParquet = args(2).toInt
+
+    // if (applyParquet == 0){
+    //   val conf = new SparkConf().setAppName(appName)
+    //   // read files from local FS
+    //   // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
+
+    //   // read from alluxio
+    //   val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+
+    //   val output = new ListBuffer[(String, Float)]
+    //   output ++= executeQueries(conf, INPUT_DIR, queryNum)
+    // }
+    // else if (applyParquet == 1){
+    //   val sparksession = SparkSession
+    //     .builder()
+    //     .appName(appName)
+    //     .getOrCreate()
+
+    //   val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+    //   runParquetQueries(sparksession, INPUT_DIR, queryNum)
+
+    // }
+    // else if(applyParquet == 2){
+    //   // TODO convert tbl to parquet
+    // }
   }
 }

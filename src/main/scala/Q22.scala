@@ -43,6 +43,6 @@ class Q22 extends TpchQuery {
       .sort($"cntrycode")
   }
   override def getRawSQL(): String = {
-    return "select cntrycode, count(*) as numcust, sum(c_acctbal) as totacctbal \nfrom \n(select c_phone as cntrycode, c_acctbal from CUSTOMER \n\twhere c_phone in ('20', '40', '22', '30', '39', '42', '21') \n\tand c_acctbal > ( \n\t\tselect avg(c_acctbal) \n\t\tfrom CUSTOMER \n\t\twhere c_acctbal > 0.00 and c_phone in ('20', '40', '22', '30', '39', '42', '21'))\n\tand not exists \n\t( select * from ORDERS where o_custkey = c_custkey)) custsale\ngroup by cntrycode\norder by cntrycode;"
+    return "select cntrycode, count(*) as numcust, sum(c_acctbal) as totacctbal \nfrom \n(select c_phone as cntrycode, c_acctbal from CUSTOMER \n\twhere c_phone in ('20', '40', '22', '30', '39', '42', '21') \n\tand c_acctbal > ( \n\t\tselect avg(c_acctbal) \n\t\tfrom CUSTOMER \n\t\twhere c_acctbal > 0.00 and c_phone in ('20', '40', '22', '30', '39', '42', '21'))\n\tand not exists \n\t( select * from ORDERS where o_custkey = c_custkey)) custsale\ngroup by cntrycode\norder by cntrycode"
   }
 }

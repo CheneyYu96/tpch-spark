@@ -24,6 +24,6 @@ class Q06 extends TpchQuery {
   }
 
   override def getRawSQL(): String = {
-    return "select\n\tsum(l_extendedprice * l_discount) as revenue\nfrom\n\tLINEITEM\nwhere\n\tl_shipdate >= date '1994-01-01'\n\tand l_shipdate < date '1994-01-01' + interval '1' year\n\tand l_discount between 0.06 - 0.01 and 0.06 + 0.01\n\tand l_quantity < 24;"
+    return "select\n\tsum(l_extendedprice * l_discount) as revenue\nfrom\n\tLINEITEM\nwhere\n\tl_shipdate >= date '1994-01-01'\n\tand l_shipdate < date '1994-01-01' + interval '1' year\n\tand l_discount between 0.06 - 0.01 and 0.06 + 0.01\n\tand l_quantity < 24"
   }
 }

@@ -23,4 +23,7 @@ class Q30 extends TpchQuery {
     lineitem.join(order, $"l_orderkey" === order("o_orderkey")).limit(10)
 
   }
+  override def getRawSQL(): String = {
+    return "select * from ORDERS, LINEITEM where l_orderkey = o_orderkey"
+  }
 }

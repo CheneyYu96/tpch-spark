@@ -8,6 +8,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import org.apache.spark.sql._
+import org.apache.spark.sql.SparkSession
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
@@ -34,6 +35,8 @@ abstract class TpchQuery{
    *  implemented in children classes and hold the actual query
    */
   def execute(sc: SparkContext, tpchSchemaProvider: TpchSchemaProvider): DataFrame
+
+  def getRawSQL(): String
 }
 
 object TpchQuery  extends Logging{
@@ -77,28 +80,77 @@ object TpchQuery  extends Logging{
     return results
   }
 
+  def runParquetQueries(spark: SparkSession, inputDir: String, queryNum: Int): Unit = {
+    // Encoders for most common types are automatically provided by importing spark.implicits._
+    import spark.implicits._
+
+    val customerFileDF = spark.read.parquet(inputDir + "/customer.parquet")
+    val lineitemFileDF = spark.read.parquet(inputDir + "/lineitem.parquet")
+    val nationFileDF = spark.read.parquet(inputDir + "/nation.parquet")
+    val regionFileDF = spark.read.parquet(inputDir + "/region.parquet")
+    val ordersFileDF = spark.read.parquet(inputDir + "/orders.parquet")
+    val partFileDF = spark.read.parquet(inputDir + "/part.parquet")
+    val partsuppFileDF = spark.read.parquet(inputDir + "/partsupp.parquet")
+    val supplierFileDF = spark.read.parquet(inputDir + "/supplier.parquet")
+
+    customerFileDF.createOrReplaceTempView("customer")
+    lineitemFileDF.createOrReplaceTempView("lineitem")
+    nationFileDF.createOrReplaceTempView("nation")
+    regionFileDF.createOrReplaceTempView("region")
+    ordersFileDF.createOrReplaceTempView("orders")
+    partFileDF.createOrReplaceTempView("part")
+    partsuppFileDF.createOrReplaceTempView("partsupp")
+    supplierFileDF.createOrReplaceTempView("supplier")
+
+    val query = Class.forName(f"main.scala.Q${queryNum}%02d").newInstance.asInstanceOf[TpchQuery].getRawSQL()
+
+    val beginTime = System.nanoTime()
+    val resultDF = spark.sql(query)
+    resultDF.show()
+
+    val timeSingleElapsed = (System.nanoTime() - beginTime)/1000000.0f // milisecond
+    logInfo(s"End executing query. Time: ${timeSingleElapsed}")
+    spark.catalog.clearCache()
+
+  }
+
   def main(args: Array[String]): Unit = {
 
     var queryNum = 0
     var appName = "TPCH Query in 2 workers"
+    // whether to use parquet file directly
+    var applyParquet = 0
 
     if (args.length > 0)
       queryNum = args(0).toInt
     if (args.length > 1)
       appName = args(1)
+    if (args.length > 2)
+      applyParquet = args(2).toInt
 
-    val conf = new SparkConf().setAppName(appName)
-    // read files from local FS
-    // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
+    if (applyParquet == 0){
+      val conf = new SparkConf().setAppName(appName)
+      // read files from local FS
+      // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
 
-    // read from hdfs
-    // val INPUT_DIR: String = "/dbgen"
+      // read from hdfs
+      // val INPUT_DIR: String = "/dbgen"
 
-    // read from alluxio
-    val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+      // read from alluxio
+      val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
 
-    val output = new ListBuffer[(String, Float)]
-    output ++= executeQueries(conf, INPUT_DIR, queryNum)
+      val output = new ListBuffer[(String, Float)]
+      output ++= executeQueries(conf, INPUT_DIR, queryNum)
+    }
+    else{
+      val sparksession = SparkSession
+        .builder()
+        .appName(appName)
+        .getOrCreate()
 
+      val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+      runParquetQueries(sparksession, INPUT_DIR, queryNum)
+
+    }
   }
 }

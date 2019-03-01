@@ -24,4 +24,8 @@ class Q31 extends TpchQuery {
       .agg(count($"l_shipmode"))
 
   }
+
+  override def getRawSQL(): String = {
+    return "select l_shipmode, count(l_shipmode) from LINEITEM group by l_shipmode"
+  }
 }

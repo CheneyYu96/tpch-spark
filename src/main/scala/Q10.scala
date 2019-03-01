@@ -36,4 +36,8 @@ class Q10 extends TpchQuery {
       .limit(20)
   }
 
+  override def getRawSQL(): String = {
+    return "select c_custkey,\n\tc_name,\n\tsum(l_extendedprice * (1 - l_discount)) as revenue,\n\tc_acctbal,\n\tn_name,\n\tc_address,\n\tc_phone,\n\tc_comment\nfrom\n\tCUSTOMER,\n\tORDERS,\n\tLINEITEM,\n\tNATION\nwhere\n\tc_custkey = o_custkey\n\tand l_orderkey = o_orderkey\n\tand o_orderdate >= date '1993-08-01'\n\tand o_orderdate < date '1993-08-01' + interval '3' month\n\tand l_returnflag = 'R'\n\tand c_nationkey = n_nationkey\ngroup by\n\tc_custkey,\n\tc_name,\n\tc_acctbal,\n\tc_phone,\n\tn_name,\n\tc_address,\n\tc_comment\norder by\n\trevenue desc\nlimit 20;"
+  }
+
 }

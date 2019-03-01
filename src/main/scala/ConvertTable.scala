@@ -27,7 +27,7 @@ class ConvertTable{
     schemaProvider.lineitem.write.format("parquet").save(s"${OUTPUT_DIR}/lineitem.parquet")
     schemaProvider.nation.write.format("parquet").save(s"${OUTPUT_DIR}/nation.parquet")
     schemaProvider.region.write.format("parquet").save(s"${OUTPUT_DIR}/region.parquet")
-    schemaProvider.order.write.format("parquet").save(s"${OUTPUT_DIR}/order.parquet")
+    schemaProvider.order.write.format("parquet").save(s"${OUTPUT_DIR}/orders.parquet")
     schemaProvider.part.write.format("parquet").save(s"${OUTPUT_DIR}/part.parquet")
     schemaProvider.partsupp.write.format("parquet").save(s"${OUTPUT_DIR}/partsupp.parquet")
     schemaProvider.supplier.write.format("parquet").save(s"${OUTPUT_DIR}/supplier.parquet")

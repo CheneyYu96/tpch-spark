@@ -43,15 +43,8 @@ object TpchQuery  extends Logging{
 
   var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
 
-
   def outputDF(df: DataFrame, outputDir: String, className: String): Unit = {
     df.collect().take(10).foreach(println)
-
-//    if (outputDir == null || outputDir == "")
-//      df.collect().foreach(println)
-//    else
-//      //df.write.mode("overwrite").json(outputDir + "/" + className + ".out") // json to avoid alias
-//      df.write.mode("overwrite").format("com.databricks.spark.csv").option("header", "true").save(outputDir + "/" + className)
   }
 
   def executeQueries(conf: SparkConf, inputDir: String, queryNum: Int): ListBuffer[(String, Float)] = {
@@ -118,7 +111,13 @@ object TpchQuery  extends Logging{
 
     var queryNum = 0
     var appName = "TPCH Query in 2 workers"
-    // whether to use parquet file directly
+
+    /*
+    * whether to use parquet file directly
+    * 0: use plain text to run queries
+    * 1: use parquet file to run queries
+    * 2: generate parquet files
+    */
     var applyParquet = 0
 
     if (args.length > 0)
@@ -133,16 +132,13 @@ object TpchQuery  extends Logging{
       // read files from local FS
       // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
 
-      // read from hdfs
-      // val INPUT_DIR: String = "/dbgen"
-
       // read from alluxio
       val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
 
       val output = new ListBuffer[(String, Float)]
       output ++= executeQueries(conf, INPUT_DIR, queryNum)
     }
-    else{
+    else if (applyParquet == 1){
       val sparksession = SparkSession
         .builder()
         .appName(appName)
@@ -151,6 +147,9 @@ object TpchQuery  extends Logging{
       val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
       runParquetQueries(sparksession, INPUT_DIR, queryNum)
 
+    }
+    else if(applyParquet == 2){
+      // TODO convert tbl to parquet
     }
   }
 }

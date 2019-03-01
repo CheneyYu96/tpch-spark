@@ -137,6 +137,10 @@ object TpchQuery  extends Logging{
       } text ("with this queries would be excecuted on parquet files")
 
       help("help") text("print this usage text.")
+
+      opt[String]('n', "app-name") action { (x, c) =>
+          c.copy(appName = x)
+      } text ("spark application name")
     }
 
     parser.parse(args, CommandLineArgs()) match {
@@ -167,7 +171,7 @@ object TpchQuery  extends Logging{
 
         // val output = new ListBuffer[(String, Float)]
         // output ++= executeQueries(conf, INPUT_DIR, params.queryNum)
-        val conf = new SparkConf().setAppName(appName)
+        val conf = new SparkConf().setAppName(params.appName)
       
         val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
 
@@ -178,7 +182,7 @@ object TpchQuery  extends Logging{
       else if(params.exeQuery && params.runParquet){
         val sparksession = SparkSession
         .builder()
-        .appName(appName)
+        .appName(params.appName)
         .getOrCreate()
 
         val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"

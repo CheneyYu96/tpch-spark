@@ -185,7 +185,7 @@ object TpchQuery  extends Logging{
         .appName(params.appName)
         .getOrCreate()
 
-        val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+        val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/tpch_parquet"
         runParquetQueries(sparksession, INPUT_DIR, params.queryNum)
       }
 

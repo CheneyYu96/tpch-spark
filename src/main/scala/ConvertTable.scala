@@ -10,10 +10,10 @@ class ConvertTable{
 
   var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
 
-  def parseTable(): Unit = {
+  def parseTable(input_prefix: String): Unit = {
     val conf = new SparkConf().setAppName("Convert tbl to parquet")
     // read from alluxio
-    val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+    val INPUT_DIR = s"${input_prefix}/data"
 
     val OUTPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/tpch_parquet"
     

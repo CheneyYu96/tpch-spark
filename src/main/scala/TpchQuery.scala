@@ -113,7 +113,8 @@ object TpchQuery  extends Logging{
     exeQuery: Boolean = false,
     convertTable: Boolean = false,
     appName: String = "TPCH Query in 2 workers",
-    runParquet: Boolean = false
+    runParquet: Boolean = false,
+    fromHDFS: Boolean = false
   )
 
   def main(args: Array[String]): Unit = {
@@ -141,7 +142,13 @@ object TpchQuery  extends Logging{
       opt[String]('n', "app-name") action { (x, c) =>
           c.copy(appName = x)
       } text ("spark application name")
+
+      opt[Unit]('f', "from-hdfs") action { (_, c) =>
+        c.copy(fromHDFS = true)
+      } text ("with this a task read tbl from hdfs")
     }
+
+    var input_prefix: String = ""
 
     parser.parse(args, CommandLineArgs()) match {
       case Some(config) =>
@@ -153,11 +160,19 @@ object TpchQuery  extends Logging{
       // arguments are bad, error message will have been displayed
     }
 
+
     def run(params: CommandLineArgs): Unit = {
+      if(params.fromHDFS){
+        input_prefix = "hdfs://${IP}:9000/home/ec2-user"
+      }
+      else{
+        input_prefix = "alluxio://${IP}:19998/home/ec2-user"
+      }
       if(params.convertTable){
         val ct = new ConvertTable()
-        ct.parseTable()
+        ct.parseTable(input_prefix)
       }
+
       if(params.exeQuery && !params.runParquet){
         // val conf = new SparkConf().setAppName(params.appName)
         // // read files from local FS

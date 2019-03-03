@@ -163,10 +163,10 @@ object TpchQuery  extends Logging{
 
     def run(params: CommandLineArgs): Unit = {
       if(params.fromHDFS){
-        input_prefix = "hdfs://${IP}:9000/home/ec2-user"
+        input_prefix = s"hdfs://${IP}:9000/home/ec2-user"
       }
       else{
-        input_prefix = "alluxio://${IP}:19998/home/ec2-user"
+        input_prefix = s"alluxio://${IP}:19998/home/ec2-user"
       }
       if(params.convertTable){
         val ct = new ConvertTable()

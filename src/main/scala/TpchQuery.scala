@@ -196,6 +196,7 @@ object TpchQuery  extends Logging{
         if(params.logTrace){
           sc.setLogLevel("TRACE")
         }
+        logInfo(s"Got application ID: ${sc.applicationId}")
 
         val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
 
@@ -210,9 +211,10 @@ object TpchQuery  extends Logging{
           .getOrCreate()
 
         if(params.logTrace){
-          val sc = sparksession.sparkContext
-          sc.setLogLevel("TRACE")
+          sparksession.sparkContext.setLogLevel("TRACE")
         }
+
+        logInfo(s"Got application ID: ${sparksession.sparkContext.applicationId}")
 
         val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/tpch_parquet"
         runParquetQueries(sparksession, INPUT_DIR, params.queryNum)

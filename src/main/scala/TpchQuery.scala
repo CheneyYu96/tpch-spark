@@ -48,12 +48,11 @@ object TpchQuery  extends Logging{
     df.collect().take(10).foreach(println)
   }
 
-  def executeQueries(conf: SparkConf, inputDir: String, queryNum: Int): ListBuffer[(String, Float)] = {
+  def executeQueries(sc: SparkContext, inputDir: String, queryNum: Int): ListBuffer[(String, Float)] = {
     val OUTPUT_DIR: String = "file://" + new File(".").getAbsolutePath() + "/tpch_out"
 
     val results = new ListBuffer[(String, Float)]
 
-    val sc = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
     var queryNo = queryNum
@@ -114,7 +113,8 @@ object TpchQuery  extends Logging{
     convertTable: Boolean = false,
     appName: String = "TPCH Query in 2 workers",
     runParquet: Boolean = false,
-    fromHDFS: Boolean = false
+    fromHDFS: Boolean = false,
+    logTrace: Boolean = false
   )
 
   def main(args: Array[String]): Unit = {
@@ -146,6 +146,10 @@ object TpchQuery  extends Logging{
       opt[Unit]('f', "from-hdfs") action { (_, c) =>
         c.copy(fromHDFS = true)
       } text ("with this a task read tbl from hdfs")
+
+      opt[Unit]('t', "log-trace") action { (_, c) =>
+        c.copy(logTrace = true)
+      } text ("set logger in TRACE level")
     }
 
     var input_prefix: String = ""
@@ -187,65 +191,33 @@ object TpchQuery  extends Logging{
         // val output = new ListBuffer[(String, Float)]
         // output ++= executeQueries(conf, INPUT_DIR, params.queryNum)
         val conf = new SparkConf().setAppName(params.appName)
-      
+
+        val sc = new SparkContext(conf)
+        if(params.logTrace){
+          sc.setLogLevel("TRACE")
+        }
+
         val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
 
         val output = new ListBuffer[(String, Float)]
-        output ++= executeQueries(conf, INPUT_DIR, params.queryNum)
+        output ++= executeQueries(sc, INPUT_DIR, params.queryNum)
         
       }
       else if(params.exeQuery && params.runParquet){
         val sparksession = SparkSession
-        .builder()
-        .appName(params.appName)
-        .getOrCreate()
+          .builder()
+          .appName(params.appName)
+          .getOrCreate()
+
+        if(params.logTrace){
+          val sc = sparksession.sparkContext
+          sc.setLogLevel("TRACE")
+        }
 
         val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/tpch_parquet"
         runParquetQueries(sparksession, INPUT_DIR, params.queryNum)
       }
 
     }
-    // var queryNum = 0
-    // var appName = "TPCH Query in 2 workers"
-
-    // /*
-    // * whether to use parquet file directly
-    // * 0: use plain text to run queries
-    // * 1: use parquet file to run queries
-    // * 2: generate parquet files
-    // */
-    // var applyParquet = 0
-
-    // if (args.length > 0)
-    //   queryNum = args(0).toInt
-    // if (args.length > 1)
-    //   appName = args(1)
-    // if (args.length > 2)
-    //   applyParquet = args(2).toInt
-
-    // if (applyParquet == 0){
-    //   val conf = new SparkConf().setAppName(appName)
-    //   // read files from local FS
-    //   // val INPUT_DIR = "file://" + new File(".").getAbsolutePath() + "/dbgen"
-
-    //   // read from alluxio
-    //   val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
-
-    //   val output = new ListBuffer[(String, Float)]
-    //   output ++= executeQueries(conf, INPUT_DIR, queryNum)
-    // }
-    // else if (applyParquet == 1){
-    //   val sparksession = SparkSession
-    //     .builder()
-    //     .appName(appName)
-    //     .getOrCreate()
-
-    //   val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
-    //   runParquetQueries(sparksession, INPUT_DIR, queryNum)
-
-    // }
-    // else if(applyParquet == 2){
-    //   // TODO convert tbl to parquet
-    // }
   }
 }

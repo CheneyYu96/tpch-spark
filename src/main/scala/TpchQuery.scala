@@ -99,17 +99,19 @@ object TpchQuery  extends Logging{
 
     val beginTime = System.nanoTime()
 
-    if (query.indexOf(";") >= 0){
-      var subQueries = query.split(";")
-      for(subQuery <- subQueries){
-        val resultDF = spark.sql(subQuery)
-        resultDF.show()
-      }
-    }
-    else{
-      val resultDF = spark.sql(query)
-      resultDF.show()
-    }
+//    if (query.indexOf(";") >= 0){
+//      var subQueries = query.split(";")
+//      for(subQuery <- subQueries){
+//        val resultDF = spark.sql(subQuery)
+//        resultDF.show()
+//      }
+//    }
+//    else{
+//      val resultDF = spark.sql(query)
+//      resultDF.show()
+//    }
+    val resultDF = spark.sql(query)
+    resultDF.show()
 
     val timeSingleElapsed = (System.nanoTime() - beginTime)/1000000.0f // milisecond
     logInfo(s"End executing query. Time: ${timeSingleElapsed}")

@@ -102,7 +102,7 @@ object TpchQuery  extends Logging{
     if (query.indexOf(";") >= 0){
       val subQueries = query.split(";")
 
-      for(index <- 0 to subQueries.length){
+      for(index <- 0 to subQueries.length - 1){
         if (index == subQueries.length - 1){
           val resultDF = spark.sql(subQueries(index))
           resultDF.show()

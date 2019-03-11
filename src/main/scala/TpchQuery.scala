@@ -122,34 +122,43 @@ object TpchQuery  extends Logging{
     val parser = new scopt.OptionParser[CommandLineArgs]("Column-Cache Experiment") {
       head("scopt", "3.7.1")
       
-      opt[Int]('q', "query") action { (x, c) =>
-        {
-          c.copy(queryNum = x)
-          c.copy(exeQuery = true)
-        }
-      } text ("query is num of the query to be excecuted")
+      opt[Int]('q', "query")
+        .action ((x, c) =>
+            c.copy(queryNum = x, exeQuery = true)
+          )
+        .text ("query is num of the query to be excecuted")
 
-      opt[Unit]('c', "convert-table") action { (_, c) =>
-        c.copy(convertTable = true)
-      } text ("with this a task to convert tbl to parquet would be excecuted")
+      opt[Unit]('c', "convert-table")
+        .action ( (_, c) =>
+            c.copy(convertTable = true)
+          )
+        .text ("with this a task to convert tbl to parquet would be excecuted")
 
-      opt[Unit]('p', "run-parquet") action { (_, c) =>
-        c.copy(runParquet = true)
-      } text ("with this queries would be excecuted on parquet files")
+      opt[Unit]('p', "run-parquet")
+        .action ( (_, c) =>
+            c.copy(runParquet = true)
+          )
+        .text ("with this queries would be excecuted on parquet files")
 
-      help("help") text("print this usage text.")
+      help("help").text("print this usage text.")
 
-      opt[String]('n', "app-name") action { (x, c) =>
-          c.copy(appName = x)
-      } text ("spark application name")
+      opt[String]('n', "app-name")
+        .action ( (x, c) =>
+              c.copy(appName = x)
+          )
+        .text ("spark application name")
 
-      opt[Unit]('f', "from-hdfs") action { (_, c) =>
-        c.copy(fromHDFS = true)
-      } text ("with this a task read tbl from hdfs")
+      opt[Unit]('f', "from-hdfs")
+        .action ( (_, c) =>
+            c.copy(fromHDFS = true)
+          )
+        .text ("with this a task read tbl from hdfs")
 
-      opt[Unit]('t', "log-trace") action { (_, c) =>
-        c.copy(logTrace = true)
-      } text ("set logger in TRACE level")
+      opt[Unit]('t', "log-trace")
+        .action ( (_, c) =>
+            c.copy(logTrace = true)
+          )
+        .text ("set logger in TRACE level")
     }
 
     var input_prefix: String = ""

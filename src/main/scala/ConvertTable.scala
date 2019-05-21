@@ -19,7 +19,7 @@ class ConvertTable{
     
     val sc = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-//    sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed")
+    sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed")
     sc.hadoopConfiguration.setInt("parquet.block.size", 1024 * 1024 * 1024)
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 

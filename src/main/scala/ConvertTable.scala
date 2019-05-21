@@ -19,6 +19,8 @@ class ConvertTable{
     
     val sc = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
+    sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed")
+
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 
     import sqlContext.implicits._

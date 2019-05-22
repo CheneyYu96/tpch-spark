@@ -204,7 +204,7 @@ object TpchQuery  extends Logging{
       var prefix: String = s"alluxio://${IP}:19998"
 
       if(params.local){
-        prefix = ""
+        prefix = "file://"
       }
 
       if(params.fromHDFS){

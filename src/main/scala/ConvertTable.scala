@@ -15,7 +15,7 @@ class ConvertTable{
     // read from alluxio
     val INPUT_DIR = s"${input_prefix}/data"
 
-    val OUTPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/tpch_parquet"
+    val OUTPUT_DIR = s"${input_prefix}/tpch_parquet"
     
     val sc = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)

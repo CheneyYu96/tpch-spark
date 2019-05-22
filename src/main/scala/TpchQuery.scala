@@ -133,7 +133,8 @@ object TpchQuery  extends Logging{
     appName: String = "TPCH Query in 2 workers",
     runParquet: Boolean = false,
     fromHDFS: Boolean = false,
-    logTrace: Boolean = false
+    logTrace: Boolean = false,
+    local: Boolean = false
   )
 
   def main(args: Array[String]): Unit = {
@@ -178,6 +179,12 @@ object TpchQuery  extends Logging{
             c.copy(logTrace = true)
           )
         .text ("set logger in TRACE level")
+
+      opt[Unit]('l', "local")
+        .action ( (_, c) =>
+          c.copy(local = true)
+        )
+        .text ("set logger in TRACE level")
     }
 
     var input_prefix: String = ""
@@ -194,11 +201,17 @@ object TpchQuery  extends Logging{
 
 
     def run(params: CommandLineArgs): Unit = {
+      var prefix: String = s"alluxio://${IP}:19998"
+
+      if(params.local){
+        prefix = ""
+      }
+
       if(params.fromHDFS){
         input_prefix = s"hdfs://${IP}:9000/home/ec2-user"
       }
       else{
-        input_prefix = s"alluxio://${IP}:19998/home/ec2-user"
+        input_prefix = s"${prefix}/home/ec2-user"
       }
       if(params.convertTable){
         val ct = new ConvertTable()
@@ -226,7 +239,7 @@ object TpchQuery  extends Logging{
         }
         logInfo(s"Got application ID: ${sc.applicationId}")
 
-        val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/data"
+        val INPUT_DIR = s"${prefix}/home/ec2-user/data"
 
         val output = new ListBuffer[(String, Float)]
         output ++= executeQueries(sc, INPUT_DIR, params.queryNum)
@@ -245,7 +258,7 @@ object TpchQuery  extends Logging{
         logInfo(s"Got application ID: ${sparksession.sparkContext.applicationId}")
         logInfo(s"Run query: ${params.queryNum}")
 
-        val INPUT_DIR = s"alluxio://${IP}:19998/home/ec2-user/tpch_parquet"
+        val INPUT_DIR = s"${prefix}/home/ec2-user/tpch_parquet"
         runParquetQueries(sparksession, INPUT_DIR, params.queryNum)
       }
 

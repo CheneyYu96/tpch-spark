@@ -15,11 +15,11 @@ class ConvertTable{
     // read from alluxio
     val INPUT_DIR = s"${input_prefix}/data"
 
-    val OUTPUT_DIR = s"${input_prefix}/tpch_parquet"
+    val OUTPUT_DIR = s"${ }/tpch_parquet"
     
     val sc = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-//    sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed")
+    sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed")
     sc.hadoopConfiguration.setInt("parquet.block.size", 1024 * 1024 * 1024)
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 

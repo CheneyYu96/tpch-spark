@@ -125,6 +125,7 @@ launch() {
 	flintrock run-command $cluster_name 'git clone git://github.com/CheneyYu96/tpch-spark.git'
 	# flintrock run-command --master-only $cluster_name 'mv /home/ec2-user/SparkSQL-test /home/ec2-user/tpch-spark'
 	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user/tpch-spark/dbgen; make'
+	# flintrock run-command $cluster_name 'cd /home/ec2-user/tpch-spark; git pull'
 	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user/tpch-spark/; sbt assembly'
 
 	configure_alluxio $cluster_name

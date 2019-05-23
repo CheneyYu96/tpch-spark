@@ -38,7 +38,7 @@ configure_alluxio(){
 	# flintrock run-command $cluster_name 'echo "alluxio.worker.memory.size=5GB" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
 
 	flintrock run-command $cluster_name 'echo "fr.repl.interval=600" >> /home/ec2-user/alluxio/conf/alluxio-site.properties; 
-	echo "fr.parquet.info=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties; 
+	echo "fr.parquet.info=false" >> /home/ec2-user/alluxio/conf/alluxio-site.properties; 
 	echo "fr.repl.policy.class=alluxio.master.repl.policy.BundleHottestKPolicy" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.client.translation=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
 
@@ -219,12 +219,13 @@ updata_alluxio() {
 collect_log() {
 	cluster_name=$1
 
-	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user; zip -r logs.zip logs/'
+	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user; zip -r logs.zip logs/;' # zip -r info.zip info/'
 	master_ip=$(flintrock describe $cluster_name | grep master | cut -c 11-)
 
 	scp -o "StrictHostKeyChecking no" ec2-user@${master_ip}:/home/ec2-user/logs.zip ~/Desktop
+	# scp -o "StrictHostKeyChecking no" ec2-user@${master_ip}:/home/ec2-user/info.zip ~/Desktop
 
-	flintrock run-command --master-only $cluster_name 'rm /home/ec2-user/logs.zip'
+	flintrock run-command --master-only $cluster_name 'rm /home/ec2-user/logs.zip;' # rm /home/ec2-user/info.zip'
 
 }
 

@@ -21,6 +21,7 @@ class ConvertTable{
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed")
     sc.hadoopConfiguration.setInt("parquet.block.size", 1024 * 1024 * 1024)
+    sc.hadoopConfiguration.setInt("io.file.buffer.size", 512 * 1024 * 1024)
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 
     import sqlContext.implicits._

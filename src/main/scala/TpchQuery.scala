@@ -251,6 +251,8 @@ object TpchQuery  extends Logging{
           .appName(params.appName)
           .getOrCreate()
 
+        sparksession.sparkContext.hadoopConfiguration.setInt("io.file.buffer.size", 512 * 1024 * 1024)
+
         sparksession.sparkContext.getConf.getAll.foreach(println)
         if(params.logTrace){
           sparksession.sparkContext.setLogLevel("TRACE")

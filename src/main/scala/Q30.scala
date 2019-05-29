@@ -24,7 +24,7 @@ class Q30 extends TpchQuery {
 
   }
   override def getRawSQL(): String = {
-    return "select l_orderkey, o_orderdate, l_commitdate from ORDERS, LINEITEM where l_orderkey = o_orderkey"
+    return "select l_orderkey, o_orderdate, l_commitdate, l_shipdate, l_year, l_discount from ORDERS, LINEITEM where l_orderkey = o_orderkey"
 //    return "select * from ORDERS, LINEITEM where l_orderkey = o_orderkey"
   }
 }

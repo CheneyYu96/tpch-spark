@@ -35,13 +35,17 @@ configure_alluxio(){
 	flintrock run-command $cluster_name 'echo "alluxio.user.file.delete.unchecked=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
 	flintrock run-command $cluster_name 'echo "alluxio.user.file.passive.cache.enabled=false" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
 	# flintrock run-command $cluster_name 'echo "alluxio.user.file.replication.min=2" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
-	# flintrock run-command $cluster_name 'echo "alluxio.worker.memory.size=5GB" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
+	flintrock run-command $cluster_name 'echo "alluxio.user.block.size.bytes.default=1GB" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
 
 	flintrock run-command $cluster_name 'echo "fr.repl.interval=600" >> /home/ec2-user/alluxio/conf/alluxio-site.properties; 
 	echo "fr.parquet.info=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties; 
-	echo "fr.repl.policy.class=alluxio.master.repl.policy.BundleHottestKPolicy" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.repl.policy.class=alluxio.master.repl.policy.ColReplPolicy" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.client.translation=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.client.block.location=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.record.interval=5000" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.repl.global=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.repl.repeat=false" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.repl.budget=1" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.repl.weight=1" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
 
 	flintrock run-command $cluster_name 'echo "alluxio.master.hostname=$(cat /home/ec2-user/hadoop/conf/masters)" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
@@ -115,11 +119,11 @@ launch() {
 	# Compile alluxio source code
 	flintrock run-command $cluster_name 'cd /home/ec2-user/alluxio; git checkout base-ver-fr; git pull; mvn -T 2C install -Phadoop-2 -Dhadoop.version=2.8.5 -Dmaven.javadoc.skip -DskipTests -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true'
 
-	# build write parquet module
+	## build write parquet module
 	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user/alluxio/writeparquet; mvn package -DskipTests -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true'
-	# build parquet-cli
+	## build parquet-cli
 	flintrock run-command --master-only $cluster_name 'git clone https://github.com/apache/parquet-mr.git; cd parquet-mr/parquet-cli; mvn clean install -DskipTests'
-	# replace jars
+	## replace jars
 	flintrock run-command $cluster_name '/home/ec2-user/alluxio/bin/move-par-jar.sh'
 
 	# Download workload & compile
@@ -140,7 +144,9 @@ launch() {
 	flintrock run-command $cluster_name 'cp /home/ec2-user/spark/conf/log4j.properties.template /home/ec2-user/spark/conf/log4j.properties'
 
 	flintrock run-command $cluster_name 'echo "spark.driver.extraClassPath /home/ec2-user/alluxio/client/$(ls /home/ec2-user/alluxio/client)" >> /home/ec2-user/spark/conf/spark-defaults.conf;
-	echo "spark.executor.extraClassPath /home/ec2-user/alluxio/client/$(ls /home/ec2-user/alluxio/client)" >> /home/ec2-user/spark/conf/spark-defaults.conf'
+	echo "spark.executor.extraClassPath /home/ec2-user/alluxio/client/$(ls /home/ec2-user/alluxio/client)" >> /home/ec2-user/spark/conf/spark-defaults.conf;
+	echo "spark.sql.parquet.filterPushdown false" >> /home/ec2-user/spark/conf/spark-defaults.conf;
+	echo "spark.locality.wait 300ms" >> /home/ec2-user/spark/conf/spark-defaults.conf'
 
 	# set hadoop
 	echo "Configure hadoop"
@@ -159,7 +165,8 @@ launch() {
 	# flintrock run-command --master-only $cluster_name '/home/ec2-user/hadoop/sbin/stop-dfs.sh;/home/ec2-user/hadoop/sbin/start-dfs.sh;/home/ec2-user/alluxio/bin/alluxio format;/home/ec2-user/alluxio/bin/alluxio-start.sh all SudoMount'
 	
 	# echo "setup wondershaper for bandwidth limitation"
-	# flintrock run-command $cluster_name "sudo yum -y install tc; git clone  https://github.com/magnific0/wondershaper.git; cd wondershaper; sudo make install;" # sudo systemctl enable wondershaper.service; sudo systemctl start wondershaper.service"
+	flintrock run-command $cluster_name "sudo yum -y install tc; git clone  https://github.com/magnific0/wondershaper.git; cd wondershaper; sudo make install;" 
+	# sudo systemctl enable wondershaper.service; sudo systemctl start wondershaper.service"
 
 	# restart 
 	echo "Restart"
@@ -167,6 +174,9 @@ launch() {
 	# flintrock stop --assume-yes $cluster_name
 	# start $cluster_name
 	manual_restart $cluster_name
+
+	## conf spark worker name
+	flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/conf-spark.sh add'
 
 }
 

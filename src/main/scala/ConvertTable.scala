@@ -10,7 +10,7 @@ class ConvertTable{
 
   var IP : String = Source.fromFile("/home/ec2-user/hadoop/conf/masters").getLines.toList.head
 
-  def parseTable(input_prefix: String): Unit = {
+  def parseTable(input_prefix: String, size: Int): Unit = {
     val conf = new SparkConf().setAppName("Convert tbl to parquet")
     // read from alluxio
     val INPUT_DIR = s"${input_prefix}/data"
@@ -20,7 +20,7 @@ class ConvertTable{
     val sc = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     sqlContext.setConf("spark.sql.parquet.compression.codec", "uncompressed")
-    sc.hadoopConfiguration.setInt("parquet.block.size", 1024 * 1024 * 1024)
+    sc.hadoopConfiguration.setInt("parquet.block.size", size)
     val schemaProvider = new TpchSchemaProvider(sc, INPUT_DIR)
 
     import sqlContext.implicits._

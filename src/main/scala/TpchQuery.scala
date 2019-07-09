@@ -134,7 +134,8 @@ object TpchQuery  extends Logging{
     runParquet: Boolean = false,
     fromHDFS: Boolean = false,
     logTrace: Boolean = false,
-    local: Boolean = false
+    local: Boolean = false,
+    size: Int = 1024 * 1024 * 1024
   )
 
   def main(args: Array[String]): Unit = {
@@ -185,6 +186,12 @@ object TpchQuery  extends Logging{
           c.copy(local = true)
         )
         .text ("set logger in TRACE level")
+
+      opt[Int]('s', "size")
+        .action ( (x, c) =>
+          c.copy(size = x)
+        )
+        .text ("set logger in TRACE level")
     }
 
     var input_prefix: String = ""
@@ -215,7 +222,7 @@ object TpchQuery  extends Logging{
       }
       if(params.convertTable){
         val ct = new ConvertTable()
-        ct.parseTable(input_prefix)
+        ct.parseTable(input_prefix, params.size)
       }
 
       if(params.exeQuery && !params.runParquet){

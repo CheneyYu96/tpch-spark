@@ -42,10 +42,13 @@ configure_alluxio(){
 	echo "fr.repl.policy.class=alluxio.master.repl.policy.ColReplPolicy" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.client.translation=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.client.block.location=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.client.block.finer=false" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.record.interval=5000" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.repl.global=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.repl.repeat=false" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.repl.budget=1" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.repl.budget.access=true" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
+	echo "fr.repl.delorigin=false" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
 	echo "fr.repl.weight=1" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;'
 
 	flintrock run-command $cluster_name 'echo "alluxio.master.hostname=$(cat /home/ec2-user/hadoop/conf/masters)" >> /home/ec2-user/alluxio/conf/alluxio-site.properties;
@@ -63,68 +66,77 @@ launch() {
 
 	echo "Launch cluster ${cluster_name}"
 	# launch your specified cluster
-	flintrock launch $cluster_name
+	# flintrock launch $cluster_name
 
-	# # delete java1.8 installed by flintrock
-	# flintrock run-command $cluster_name "sudo yum -y remove java-1.8.0-openjdk.x86_64 java-1.8.0-openjdk-headless.x86_64"
+	# # # delete java1.8 installed by flintrock
+	# # flintrock run-command $cluster_name "sudo yum -y remove java-1.8.0-openjdk.x86_64 java-1.8.0-openjdk-headless.x86_64"
 
-	# delete JAVA_HOME set by flintrock
-	flintrock run-command $cluster_name 'echo `sed -e '/JAVA_HOME/d' /etc/environment` | sudo tee /etc/environment; source /etc/environment'
-
-
-	# install open JDK 1.8 for Developer
-	flintrock run-command $cluster_name 'sudo yum -y install java-1.8.0-openjdk-devel'
+	# # delete JAVA_HOME set by flintrock
+	# flintrock run-command $cluster_name 'echo `sed -e '/JAVA_HOME/d' /etc/environment` | sudo tee /etc/environment; source /etc/environment'
 
 
-	flintrock run-command $cluster_name 'echo "export JAVA_HOME=/usr/lib/jvm/$(ls /usr/lib/jvm/ | grep java-1.8.0-openjdk-1.8.0.)" >> /home/ec2-user/.bashrc;
-	echo "export JRE_HOME=\$JAVA_HOME/jre" >> /home/ec2-user/.bashrc;
-	echo "export CLASSPATH=.:\$JAVA_HOME/lib:\$JRE_HOME/lib" >> /home/ec2-user/.bashrc;
-	echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /home/ec2-user/.bashrc'
+	# # install open JDK 1.8 for Developer
+	# flintrock run-command $cluster_name 'sudo yum -y install java-1.8.0-openjdk-devel'
+
+
+	# flintrock run-command $cluster_name 'echo "export JAVA_HOME=/usr/lib/jvm/$(ls /usr/lib/jvm/ | grep java-1.8.0-openjdk-1.8.0.)" >> /home/ec2-user/.bashrc;
+	# echo "export JRE_HOME=\$JAVA_HOME/jre" >> /home/ec2-user/.bashrc;
+	# echo "export CLASSPATH=.:\$JAVA_HOME/lib:\$JRE_HOME/lib" >> /home/ec2-user/.bashrc;
+	# echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /home/ec2-user/.bashrc'
 	
-	# Install maven
-	echo "Install maven"
+	# # Install maven
+	# echo "Install maven"
 
-	flintrock run-command $cluster_name 'wget http://mirrors.ocf.berkeley.edu/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz;
-	tar zxvf apache-maven-3.5.4-bin.tar.gz;
-	rm apache-maven-3.5.4-bin.tar.gz
-	'
+	# flintrock run-command $cluster_name 'wget http://mirrors.ocf.berkeley.edu/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz;
+	# tar zxvf apache-maven-3.5.4-bin.tar.gz;
+	# rm apache-maven-3.5.4-bin.tar.gz
+	# '
 
-	flintrock run-command $cluster_name 'echo "export MAVEN_HOME=\$HOME/apache-maven-3.5.4" >> /home/ec2-user/.bashrc;
-	echo "export PATH=\$MAVEN_HOME/bin:\$PATH" >> /home/ec2-user/.bashrc'
+	# flintrock run-command $cluster_name 'echo "export MAVEN_HOME=\$HOME/apache-maven-3.5.4" >> /home/ec2-user/.bashrc;
+	# echo "export PATH=\$MAVEN_HOME/bin:\$PATH" >> /home/ec2-user/.bashrc'
 
-	# Install git & setup
-	echo "Install git"
+	# # Install git & setup
+	# echo "Install git"
 
-	flintrock run-command $cluster_name 'sudo yum -y install git'
+	# flintrock run-command $cluster_name 'sudo yum -y install git'
 
-	flintrock run-command $cluster_name "sudo yum -y install iperf3"
+	# flintrock run-command $cluster_name "sudo yum -y install iperf3"
 
-	flintrock run-command $cluster_name 'mkdir -p /home/ec2-user/logs'
+	# flintrock run-command $cluster_name 'mkdir -p /home/ec2-user/logs'
 
 
-	echo "Install tools for master"
+	# echo "Install tools for master"
 
-	flintrock run-command --master-only $cluster_name 'curl https://bintray.com/sbt/rpm/rpm > bintray-sbt-rpm.repo; 
-	sudo mv bintray-sbt-rpm.repo /etc/yum.repos.d/;
-	sudo yum -y install python-pip gcc make flex bison byacc sbt gcc-c++;
-	sudo pip install click'
+	# flintrock run-command --master-only $cluster_name 'curl https://bintray.com/sbt/rpm/rpm > bintray-sbt-rpm.repo; 
+	# sudo mv bintray-sbt-rpm.repo /etc/yum.repos.d/;
+	# sudo yum -y install python-pip gcc make flex bison byacc sbt gcc-c++;
+	# sudo pip install click paramiko numpy;
+	# sudo pip install paramiko -U
+	# '
 
-	flintrock run-command --master-only $cluster_name 'echo "export PYTHONPATH=\$SPARK_HOME/python:\$SPARK_HOME/python/lib/py4j-0.10.7-src.zip:\$PYTHONPATH" >> /home/ec2-user/.bashrc'
+	# flintrock run-command --master-only $cluster_name 'echo "export PYTHONPATH=\$SPARK_HOME/python:\$SPARK_HOME/python/lib/py4j-0.10.7-src.zip:\$PYTHONPATH" >> /home/ec2-user/.bashrc'
 
-	# Download alluxio source code
-	echo "Download & compile alluxio"
+	# # Download alluxio source code
+	# echo "Download & compile alluxio"
 
-	flintrock run-command $cluster_name 'git clone git://github.com/CheneyYu96/alluxio.git'
+	# flintrock run-command $cluster_name 'git clone git://github.com/CheneyYu96/alluxio.git; cd /home/ec2-user/alluxio; git checkout io-ver;'
 
 	# Compile alluxio source code
-	flintrock run-command $cluster_name 'cd /home/ec2-user/alluxio; git checkout base-ver-fr; git pull; mvn -T 2C install -Phadoop-2 -Dhadoop.version=2.8.5 -Dmaven.javadoc.skip -DskipTests -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true'
+	flintrock run-command $cluster_name 'cd /home/ec2-user/alluxio; git pull; mvn -T 2C install -Phadoop-2 -Dhadoop.version=2.8.5 -Dmaven.javadoc.skip -DskipTests -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true'
+	# flintrock run-command --master-only $cluster_name 'cd /home/ec2-user/alluxio; mvn -T 2C install -Phadoop-2 -Dhadoop.version=2.8.5 -Dmaven.javadoc.skip -DskipTests -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true'
+	# flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/alluxio copyDir /home/ec2-user/alluxio/client'
 
 	## build write parquet module
 	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user/alluxio/writeparquet; mvn package -DskipTests -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true'
+	flintrock run-command $cluster_name 'cd /home/ec2-user/alluxio; git pull; cd readparquet; mvn package -DskipTests -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true'
 	## build parquet-cli
 	flintrock run-command --master-only $cluster_name 'git clone https://github.com/apache/parquet-mr.git; cd parquet-mr/parquet-cli; mvn clean install -DskipTests'
 	## replace jars
 	flintrock run-command $cluster_name '/home/ec2-user/alluxio/bin/move-par-jar.sh'
+
+	configure_alluxio $cluster_name
+
+	# flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/alluxio copyDir /home/ec2-user/alluxio/client'
 
 	# Download workload & compile
 	echo "Download & compile workload"
@@ -133,8 +145,6 @@ launch() {
 	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user/tpch-spark/dbgen; make'
 	# flintrock run-command $cluster_name 'cd /home/ec2-user/tpch-spark; git pull'
 	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user/tpch-spark/; sbt assembly'
-
-	configure_alluxio $cluster_name
 
 
 	# configure spark
@@ -146,7 +156,7 @@ launch() {
 	flintrock run-command $cluster_name 'echo "spark.driver.extraClassPath /home/ec2-user/alluxio/client/$(ls /home/ec2-user/alluxio/client)" >> /home/ec2-user/spark/conf/spark-defaults.conf;
 	echo "spark.executor.extraClassPath /home/ec2-user/alluxio/client/$(ls /home/ec2-user/alluxio/client)" >> /home/ec2-user/spark/conf/spark-defaults.conf;
 	echo "spark.sql.parquet.filterPushdown false" >> /home/ec2-user/spark/conf/spark-defaults.conf;
-	echo "spark.locality.wait 300ms" >> /home/ec2-user/spark/conf/spark-defaults.conf'
+	echo "spark.locality.wait 0" >> /home/ec2-user/spark/conf/spark-defaults.conf'
 
 	# set hadoop
 	echo "Configure hadoop"
@@ -177,7 +187,10 @@ launch() {
 
 	## conf spark worker name
 	flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/conf-spark.sh add'
+	flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/conf-spark.sh map'
+	flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/move-readpar-jar.sh'
 
+	flintrock run-command $cluster_name 'echo "ec2-user   soft    nproc     60000" | sudo tee -a /etc/security/limits.d/20-nproc.conf '
 }
 
 start() {
@@ -197,6 +210,9 @@ start() {
 
 	echo "Restart alluxio & hdfs"
 	flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/alluxio-stop.sh all;/home/ec2-user/hadoop/sbin/stop-dfs.sh;/home/ec2-user/hadoop/sbin/start-dfs.sh;/home/ec2-user/alluxio/bin/alluxio format;/home/ec2-user/alluxio/bin/alluxio-start.sh all SudoMount'
+
+	flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/conf-spark.sh add'
+	flintrock run-command --master-only $cluster_name '/home/ec2-user/alluxio/bin/conf-spark.sh map'
 }
 
 stop() {
@@ -232,7 +248,7 @@ updata_alluxio() {
 collect_log() {
 	cluster_name=$1
 
-	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user; zip -r logs.zip logs/;' # zip -r info.zip info/'
+	flintrock run-command --master-only $cluster_name 'cd /home/ec2-user; zip -r logs.zip logs/ alluxio/logs/master.log;' # zip -r info.zip info/'
 	master_ip=$(flintrock describe $cluster_name | grep master | cut -c 11-)
 
 	scp -o "StrictHostKeyChecking no" ec2-user@${master_ip}:/home/ec2-user/logs.zip ~/Desktop
